@@ -70,8 +70,7 @@ Desktop.ini
 logs/
 *.log
 
-# Docker
-docker/data/
+# Docker runtime data
 docker/mysql-data/
 docker/redis-data/
 
