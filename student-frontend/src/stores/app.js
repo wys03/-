@@ -14,9 +14,6 @@ export const useAppStore = defineStore('app', () => {
   }
 
   return {
-    isCollapse,
-    activeMenu,
-    toggleSidebar,
-    setActiveMenu
+    isCollapse, activeMenu, toggleSidebar, setActiveMenu
   }
 })

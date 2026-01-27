@@ -82,21 +82,13 @@ const currentPage = ref(1)
 const pageSize = ref(10)
 const total = ref(0)
 
-const queryForm = reactive({
-  name: ''
-})
-
+const queryForm = reactive({ name: '' })
 const dialogVisible = ref(false)
 const dialogTitle = ref('新增学生')
 const formRef = ref(null)
 
 const form = reactive({
-  id: null,
-  name: '',
-  studentNo: '',
-  age: 18,
-  gender: '男',
-  major: ''
+  id: null, name: '', studentNo: '', age: 18, gender: '男', major: ''
 })
 
 const rules = {
@@ -110,17 +102,9 @@ const rules = {
 const fetchData = async () => {
   loading.value = true
   try {
-    const params = {
-      page: currentPage.value,
-      pageSize: pageSize.value
-    }
-    // 只有当搜索条件有值时才添加
-    if (queryForm.name) {
-      params.name = queryForm.name
-    }
-    console.log('请求参数:', params)
+    const params = { page: currentPage.value, pageSize: pageSize.value }
+    if (queryForm.name) params.name = queryForm.name
     const res = await getStudentList(params)
-    console.log('学生列表数据:', res)
     tableData.value = res.data.records || []
     total.value = res.data.total || 0
   } catch (error) {
@@ -130,16 +114,8 @@ const fetchData = async () => {
   }
 }
 
-const handleSearch = () => {
-  currentPage.value = 1
-  fetchData()
-}
-
-const handleReset = () => {
-  queryForm.name = ''
-  currentPage.value = 1
-  fetchData()
-}
+const handleSearch = () => { currentPage.value = 1; fetchData() }
+const handleReset = () => { queryForm.name = ''; currentPage.value = 1; fetchData() }
 
 const handleAdd = () => {
   dialogTitle.value = '新增学生'
@@ -155,9 +131,7 @@ const handleEdit = (row) => {
 
 const handleDelete = (row) => {
   ElMessageBox.confirm('确定要删除该学生吗？', '提示', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
-    type: 'warning'
+    confirmButtonText: '确定', cancelButtonText: '取消', type: 'warning'
   }).then(async () => {
     await deleteStudent(row.id)
     ElMessage.success('删除成功')
@@ -180,15 +154,47 @@ const handleSubmit = async () => {
         dialogVisible.value = false
         fetchData()
       } catch (error) {
-        console.error(error)
+        // 提取简化错误信息
+        const errorMessage = extractErrorMessage(error)
+        ElMessage.error(errorMessage)
+        console.error('学生操作错误:', error)
       }
     }
   })
 }
 
-onMounted(() => {
-  fetchData()
-})
+const extractErrorMessage = (error) => {
+  // 获取错误字符串
+  const errorStr = error.response?.data?.message || error.message || '';
+  
+  // 精确匹配重复学号错误（即使有"创建学生异常："前缀也能匹配）
+  const duplicatePattern = /Duplicate entry '(\d+)' for key 'student\.student_no'/;
+  const match = errorStr.match(duplicatePattern);
+  if (match) {
+    const studentNo = match[1];
+    return `学号 "${studentNo}" 已存在，请使用其他学号`;
+  }
+  
+  // 其他数据库约束错误
+  if (errorStr.includes('SQLIntegrityConstraintViolationException')) {
+    return '数据冲突，请检查输入信息是否重复';
+  }
+  
+  // 网络错误
+  if (error.response?.status === 404) {
+    return '请求的服务不存在，请检查后端是否启动';
+  }
+  
+  if (error.response?.status === 500) {
+    return '服务器内部错误，请稍后重试';
+  }
+  
+  // 默认错误信息（提取第一行并截断过长的消息）
+  const defaultMessage = errorStr.split('\n')[0] || '操作失败，请检查网络连接或联系管理员';
+  return defaultMessage.length > 100 ? defaultMessage.substring(0, 100) + '...' : defaultMessage;
+}
+
+onMounted(fetchData)
 </script>
 
 <style scoped>

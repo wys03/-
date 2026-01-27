@@ -54,82 +54,82 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import { User, Reading, Document } from '@element-plus/icons-vue'
-import request from '../api/request'
+  import { ref, onMounted } from 'vue'
+  import { User, Reading, Document } from '@element-plus/icons-vue'
+  import request from '../api/request'
 
-const studentCount = ref(0)
-const courseCount = ref(0)
-const scoreCount = ref(0)
-const avgScore = ref(0)
-const currentTime = ref('')
-const loading = ref(false)
+  const studentCount = ref(0)
+  const courseCount = ref(0)
+  const scoreCount = ref(0)
+  const avgScore = ref(0)
+  const currentTime = ref('')
+  const loading = ref(false)
 
-const fetchStatistics = async () => {
-  loading.value = true
-  try {
-    // 获取学生总数
-    const studentRes = await request({ url: '/students/all', method: 'get' })
-    studentCount.value = studentRes.data ? studentRes.data.length : 0
+  const fetchStatistics = async () => {
+    loading.value = true
+    try {
+      // 获取学生总数
+      const studentRes = await request({ url: '/students/all', method: 'get' })
+      studentCount.value = studentRes.data ? studentRes.data.length : 0
 
-    // 获取课程总数
-    const courseRes = await request({ url: '/courses/all', method: 'get' })
-    courseCount.value = courseRes.data ? courseRes.data.length : 0
+      // 获取课程总数
+      const courseRes = await request({ url: '/courses/all', method: 'get' })
+      courseCount.value = courseRes.data ? courseRes.data.length : 0
 
-    // 获取所有成绩计算总数和平均分
-    const scoresRes = await request({ url: '/scores', method: 'get', params: { page: 1, size: 1000 } })
-    const scores = scoresRes.data?.records || []
-    scoreCount.value = scoresRes.data?.total || 0
+      // 获取所有成绩计算总数和平均分
+      const scoresRes = await request({ url: '/scores', method: 'get', params: { page: 1, size: 1000 } })
+      const scores = scoresRes.data?.records || []
+      scoreCount.value = scoresRes.data?.total || 0
 
-    if (scores.length > 0) {
-      const total = scores.reduce((sum, item) => sum + item.score, 0)
-      avgScore.value = (total / scores.length).toFixed(2)
+      if (scores.length > 0) {
+        const total = scores.reduce((sum, item) => sum + item.score, 0)
+        avgScore.value = total / scores.length
+      }
+    } catch (error) {
+      console.error('获取统计数据失败:', error)
+    } finally {
+      loading.value = false
     }
-  } catch (error) {
-    console.error('获取统计数据失败:', error)
-  } finally {
-    loading.value = false
   }
-}
 
-onMounted(() => {
-  updateCurrentTime()
-  setInterval(updateCurrentTime, 1000)
-  fetchStatistics()
-})
+  onMounted(() => {
+    updateCurrentTime()
+    setInterval(updateCurrentTime, 1000)
+    fetchStatistics()
+  })
 
-const updateCurrentTime = () => {
-  const now = new Date()
-  currentTime.value = now.toLocaleString('zh-CN')
-}
-</script>
+  const updateCurrentTime = () => {
+    const now = new Date()
+    currentTime.value = now.toLocaleString('zh-CN')
+  }
+  </script>
 
-<style scoped>
-.dashboard {
-  padding: 20px;
-}
+  <style scoped>
+  .dashboard {
+    padding: 20px;
+  }
 
-.stat-card {
-  margin-bottom: 20px;
-}
+  .stat-card {
+    margin-bottom: 20px;
+  }
 
-.stat-card :deep(.el-statistic__head) {
-  font-size: 16px;
-  color: #606266;
-}
+  .stat-card :deep(.el-statistic__head) {
+    font-size: 16px;
+    color: #606266;
+  }
 
-.stat-card :deep(.el-statistic__number) {
-  font-size: 32px;
-  font-weight: bold;
-  color: #409eff;
-}
+  .stat-card :deep(.el-statistic__number) {
+    font-size: 32px;
+    font-weight: bold;
+    color: #409eff;
+  }
 
-.welcome-card {
-  margin-top: 20px;
-}
+  .welcome-card {
+    margin-top: 20px;
+  }
 
-.card-header {
-  font-size: 18px;
-  font-weight: bold;
-}
+  .card-header {
+    font-size: 18px;
+    font-weight: bold;
+  }
 </style>

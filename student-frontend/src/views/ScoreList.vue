@@ -160,11 +160,11 @@ const getScoreLevel = (score) => {
 }
 
 const getScoreType = (score) => {
-  if (score >= 90) return 'success'
-  if (score >= 80) return ''
-  if (score >= 70) return 'warning'
-  if (score >= 60) return 'info'
-  return 'danger'
+  if (score >= 90) return 'success'  // 优秀：绿色
+  if (score >= 80) return 'primary'  // 良好：主题色（改为有效值）
+  if (score >= 70) return 'warning'  // 中等：橙色
+  if (score >= 60) return 'info'     // 及格：蓝色
+  return 'danger'                    // 不及格：红色
 }
 
 const handleSearch = () => {

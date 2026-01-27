@@ -29,8 +29,18 @@ public class CourseServiceImpl implements CourseService {
     @CacheEvict(value = "courseCache", allEntries = true)
     public int addCourse(Course course) {
         log.info("添加课程：{}", course);
+
+        // 检查课程名是否已存在
+        LambdaQueryWrapper<Course> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Course::getCourseName, course.getCourseName());
+        Long count = courseMapper.selectCount(wrapper);
+        if (count > 0) {
+            throw new IllegalArgumentException("课程名称已存在：" + course.getCourseName());
+        }
+
         return courseMapper.insert(course);
     }
+
 
     @Override
     @Cacheable(value = "courseCache", key = "#id")

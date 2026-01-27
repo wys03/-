@@ -17,18 +17,9 @@
 import { computed } from 'vue'
 
 const props = defineProps({
-  modelValue: {
-    type: Number,
-    default: 1
-  },
-  pageSize: {
-    type: Number,
-    default: 10
-  },
-  total: {
-    type: Number,
-    required: true
-  }
+  modelValue: { type: Number, default: 1 },
+  pageSize: { type: Number, default: 10 },
+  total: { type: Number, required: true }
 })
 
 const emit = defineEmits(['update:modelValue', 'update:pageSize', 'change'])
@@ -43,13 +34,8 @@ const pageSizeValue = computed({
   set: (val) => emit('update:pageSize', val)
 })
 
-const handleSizeChange = (val) => {
-  emit('change')
-}
-
-const handleCurrentChange = (val) => {
-  emit('change')
-}
+const handleSizeChange = () => emit('change')
+const handleCurrentChange = () => emit('change')
 </script>
 
 <style scoped>

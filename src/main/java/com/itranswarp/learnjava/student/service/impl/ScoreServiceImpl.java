@@ -1,5 +1,6 @@
 package com.itranswarp.learnjava.student.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.itranswarp.learnjava.student.common.StudentScoreVO;
@@ -29,8 +30,19 @@ public class ScoreServiceImpl implements ScoreService {
     @CacheEvict(value = "scoreCache", allEntries = true)
     public int addScore(Score score) {
         log.info("添加成绩：{}", score);
+
+        // 检查"学生+课程"组合是否已存在
+        LambdaQueryWrapper<Score> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Score::getStudentId, score.getStudentId())
+                .eq(Score::getCourseId, score.getCourseId());
+        Long count = scoreMapper.selectCount(wrapper);
+        if (count > 0) {
+            throw new IllegalArgumentException("该学生已存在此课程的成绩记录，请勿重复添加");
+        }
+
         return scoreMapper.insert(score);
     }
+
 
     @Override
     @Cacheable(value = "scoreCache", key = "#id")

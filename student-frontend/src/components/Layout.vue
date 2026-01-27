@@ -61,19 +61,12 @@ import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAppStore } from '../stores/app'
 import {
-  HomeFilled,
-  User,
-  Reading,
-  Document,
-  Expand,
-  Fold,
-  UserFilled,
-  ArrowDown
+  HomeFilled, User, Reading, Document,
+  Expand, Fold, UserFilled, ArrowDown
 } from '@element-plus/icons-vue'
 
 const route = useRoute()
 const appStore = useAppStore()
-
 const isCollapse = computed(() => appStore.isCollapse)
 const activeMenu = computed(() => route.path)
 
