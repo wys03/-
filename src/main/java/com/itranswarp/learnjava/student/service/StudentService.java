@@ -39,4 +39,9 @@ public interface StudentService {
      * 分页查询学生（带条件）
      */
     IPage<Student> getStudentPage(int current, int size, String name);
+
+    /**
+     * 根据学号查询学生
+     */
+    Student getStudentByStudentNo(String studentNo);
 }

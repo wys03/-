@@ -64,18 +64,18 @@ public class ScoreController {
 
     /**
      * 分页查询成绩
-     * GET /api/scores?page=1&size=10&studentName=张&courseName=数学
+     * GET /api/scores?page=1&size=10&studentNo=2024001&courseName=数学
      */
     @GetMapping
     public Result<PageResult<StudentScoreVO>> getScores(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size,
-            @RequestParam(required = false) String studentName,
+            @RequestParam(required = false) String studentNo,
             @RequestParam(required = false) String courseName) {
-        log.info("分页查询成绩，page：{}，size：{}，studentName：{}，courseName：{}",
-                page, size, studentName, courseName);
+        log.info("分页查询成绩，page：{}，size：{}，studentNo：{}，courseName：{}",
+                page, size, studentNo, courseName);
         try {
-            IPage<StudentScoreVO> resultPage = scoreService.getScorePage(page, size, studentName, courseName);
+            IPage<StudentScoreVO> resultPage = scoreService.getScorePage(page, size, studentNo, courseName);
 
             PageResult<StudentScoreVO> pageResult = new PageResult<>();
             pageResult.setTotal(resultPage.getTotal());

@@ -37,3 +37,11 @@ export function deleteStudent(id) {
     method: 'delete'
   })
 }
+
+export function getStudentByStudentNo(studentNo) {
+  return request({
+    url: `/students/by-student-no/${studentNo}`,
+    method: 'get'
+  })
+}
+

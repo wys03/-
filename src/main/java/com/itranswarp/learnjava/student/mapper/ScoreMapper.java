@@ -34,13 +34,13 @@ public interface ScoreMapper extends BaseMapper<Score> {
     /**
      * 分页查询学生成绩详情（带条件）
      * @param page 分页对象
-     * @param studentName 学生姓名（可选）
+     * @param studentNo 学生学号（可选）
      * @param courseName 课程名称（可选）
      * @return 学生成绩分页结果
      */
     IPage<StudentScoreVO> selectScorePage(
             Page<StudentScoreVO> page,
-            @Param("studentName") String studentName,
+            @Param("studentNo") String studentNo,
             @Param("courseName") String courseName
     );
 }

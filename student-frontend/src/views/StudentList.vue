@@ -7,8 +7,10 @@
         </div>
       </template>
 
+      <!-- 1. 表单组件 -->
       <el-form :inline="true" :model="queryForm" class="search-form">
         <el-form-item label="学生姓名">
+          <!-- 2. v-model双向绑定 -->
           <el-input v-model="queryForm.name" placeholder="请输入学生姓名" clearable />
         </el-form-item>
         <el-form-item>
@@ -18,7 +20,9 @@
         </el-form-item>
       </el-form>
 
+      <!-- 3. 表格组件 -->
       <el-table :data="tableData" border stripe v-loading="loading">
+        <!-- 表格列 -->
         <el-table-column prop="id" label="ID" width="80" />
         <el-table-column prop="name" label="姓名" />
         <el-table-column prop="studentNo" label="学号" />
@@ -41,6 +45,7 @@
       />
     </el-card>
 
+    <!-- 4. 对话框组件 -->
     <el-dialog v-model="dialogVisible" :title="dialogTitle" width="500px">
       <el-form :model="form" :rules="rules" ref="formRef" label-width="80px">
         <el-form-item label="姓名" prop="name">
@@ -63,6 +68,7 @@
         </el-form-item>
       </el-form>
       <template #footer>
+        <!-- 5. 按钮事件绑定 -->
         <el-button @click="dialogVisible = false">取消</el-button>
         <el-button type="primary" @click="handleSubmit">确定</el-button>
       </template>
@@ -87,10 +93,12 @@ const dialogVisible = ref(false)
 const dialogTitle = ref('新增学生')
 const formRef = ref(null)
 
+// 5. 使用reactive创建表单对象
 const form = reactive({
   id: null, name: '', studentNo: '', age: 18, gender: '男', major: ''
 })
 
+// 6. 表单验证规则
 const rules = {
   name: [{ required: true, message: '请输入姓名', trigger: 'blur' }],
   studentNo: [{ required: true, message: '请输入学号', trigger: 'blur' }],
@@ -99,6 +107,7 @@ const rules = {
   major: [{ required: true, message: '请输入专业', trigger: 'blur' }]
 }
 
+// 7. 获取学生列表数据
 const fetchData = async () => {
   loading.value = true
   try {
@@ -161,37 +170,6 @@ const handleSubmit = async () => {
       }
     }
   })
-}
-
-const extractErrorMessage = (error) => {
-  // 获取错误字符串
-  const errorStr = error.response?.data?.message || error.message || '';
-  
-  // 精确匹配重复学号错误（即使有"创建学生异常："前缀也能匹配）
-  const duplicatePattern = /Duplicate entry '(\d+)' for key 'student\.student_no'/;
-  const match = errorStr.match(duplicatePattern);
-  if (match) {
-    const studentNo = match[1];
-    return `学号 "${studentNo}" 已存在，请使用其他学号`;
-  }
-  
-  // 其他数据库约束错误
-  if (errorStr.includes('SQLIntegrityConstraintViolationException')) {
-    return '数据冲突，请检查输入信息是否重复';
-  }
-  
-  // 网络错误
-  if (error.response?.status === 404) {
-    return '请求的服务不存在，请检查后端是否启动';
-  }
-  
-  if (error.response?.status === 500) {
-    return '服务器内部错误，请稍后重试';
-  }
-  
-  // 默认错误信息（提取第一行并截断过长的消息）
-  const defaultMessage = errorStr.split('\n')[0] || '操作失败，请检查网络连接或联系管理员';
-  return defaultMessage.length > 100 ? defaultMessage.substring(0, 100) + '...' : defaultMessage;
 }
 
 onMounted(fetchData)

@@ -30,6 +30,12 @@ public class StudentServiceImpl implements StudentService {
     @CacheEvict(value = "studentCache", allEntries = true)
     public int addStudent(Student student) {
         log.info("添加学生：{}", student);
+        LambdaQueryWrapper<Student> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Student::getStudentNo, student.getStudentNo());
+        Long count = studentMapper.selectCount(wrapper);
+        if (count > 0) {
+            throw new IllegalArgumentException("该学号已存在：" + student.getStudentNo());
+        }
         return studentMapper.insert(student);
     }
 
@@ -75,4 +81,13 @@ public class StudentServiceImpl implements StudentService {
 
         return studentMapper.selectPage(page, wrapper);
     }
+
+    @Override
+    public Student getStudentByStudentNo(String studentNo) {
+        log.info("根据学号查询学生：{}", studentNo);
+        LambdaQueryWrapper<Student> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Student::getStudentNo, studentNo);
+        return studentMapper.selectOne(wrapper);
+    }
+
 }

@@ -1,3 +1,4 @@
+<!-- 布局组件 -->
 <template>
   <el-container class="layout-container">
     <el-aside :width="isCollapse ? '64px' : '200px'" class="sidebar">

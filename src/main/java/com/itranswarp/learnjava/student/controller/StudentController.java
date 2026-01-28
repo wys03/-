@@ -142,4 +142,25 @@ public class StudentController {
             return Result.error("删除学生异常：" + e.getMessage());
         }
     }
+
+    /**
+     * 根据学号查询学生
+     * @param studentNo
+     * @return
+     */
+    @GetMapping("/by-student-no/{studentNo}")
+    public Result<Student> getStudentByStudentNo(@PathVariable String studentNo) {
+        log.info("查询学生学号：{}", studentNo);
+        try {
+            Student student = studentService.getStudentByStudentNo(studentNo);
+            if (student != null) {
+                return Result.success(student);
+            }
+            return Result.error("学生不存在");
+        } catch (Exception e) {
+            log.error("查询学生异常：{}", e.getMessage(), e);
+            return Result.error("查询学生异常：" + e.getMessage());
+        }
+    }
+
 }

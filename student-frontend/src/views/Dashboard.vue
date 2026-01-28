@@ -1,3 +1,4 @@
+<!-- 仪表板组件 -->
 <template>
   <div class="dashboard">
     <el-row :gutter="20">
@@ -58,6 +59,7 @@
   import { User, Reading, Document } from '@element-plus/icons-vue'
   import request from '../api/request'
 
+  // 1. 定义响应式数据
   const studentCount = ref(0)
   const courseCount = ref(0)
   const scoreCount = ref(0)
@@ -65,7 +67,15 @@
   const currentTime = ref('')
   const loading = ref(false)
 
+  // 2. 定义获取数据的函数
   const fetchStatistics = async () => {
+    /**
+     * 获取系统统计数据
+     * 1. 设置加载状态为true
+     * 2. 发送请求获取统计数据
+     * 3. 处理成功和失败的结果
+     * 4. 无论结果如何，最终设置加载状态为false
+     */
     loading.value = true
     try {
       // 获取学生总数
@@ -81,6 +91,7 @@
       const scores = scoresRes.data?.records || []
       scoreCount.value = scoresRes.data?.total || 0
 
+      // 计算平均分
       if (scores.length > 0) {
         const total = scores.reduce((sum, item) => sum + item.score, 0)
         avgScore.value = total / scores.length
@@ -92,19 +103,21 @@
     }
   }
 
+  // 3. 生命周期钩子：组件挂载时执行
   onMounted(() => {
     updateCurrentTime()
     setInterval(updateCurrentTime, 1000)
     fetchStatistics()
   })
 
+  // 4. 定义更新当前时间的函数
   const updateCurrentTime = () => {
     const now = new Date()
     currentTime.value = now.toLocaleString('zh-CN')
   }
-  </script>
+</script>
 
-  <style scoped>
+<style scoped>
   .dashboard {
     padding: 20px;
   }

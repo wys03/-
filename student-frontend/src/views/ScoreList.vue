@@ -8,8 +8,8 @@
       </template>
 
       <el-form :inline="true" :model="queryForm" class="search-form">
-        <el-form-item label="学生姓名">
-          <el-input v-model="queryForm.studentName" placeholder="请输入学生姓名" clearable />
+        <el-form-item label="学号">
+          <el-input v-model="queryForm.studentNo" placeholder="请输入学号" clearable />
         </el-form-item>
         <el-form-item label="课程名称">
           <el-input v-model="queryForm.courseName" placeholder="请输入课程名称" clearable />
@@ -23,6 +23,7 @@
 
       <el-table :data="tableData" border stripe v-loading="loading">
         <el-table-column prop="id" label="ID" width="80" />
+        <el-table-column prop="studentNo" label="学号" width="120" />
         <el-table-column prop="studentName" label="学生姓名" />
         <el-table-column prop="courseName" label="课程名称" />
         <el-table-column prop="score" label="成绩" width="100" />
@@ -49,18 +50,21 @@
 
     <el-dialog v-model="dialogVisible" :title="dialogTitle" width="500px">
       <el-form :model="form" :rules="rules" ref="formRef" label-width="100px">
-        <el-form-item label="学生" prop="studentId">
-          <el-select v-model="form.studentId" placeholder="请选择学生" style="width: 100%">
-            <el-option
-              v-for="student in studentOptions"
-              :key="student.id"
-              :label="student.name"
-              :value="student.id"
-            />
-          </el-select>
+        <el-form-item label="学号" prop="studentNo">
+          <el-input
+            v-model="form.studentNo"
+            placeholder="请输入学生学号"
+            clearable
+            @blur="validateStudentNo"
+          />
+          <div v-if="currentStudent" class="student-info">
+            <span class="info-tag">{{ currentStudent.name }}</span>
+            <span class="info-tag">{{ currentStudent.gender === '男' ? '男' : '女' }}</span>
+            <span class="info-tag">{{ currentStudent.className }}</span>
+          </div>
         </el-form-item>
         <el-form-item label="课程" prop="courseId">
-          <el-select v-model="form.courseId" placeholder="请选择课程" style="width: 100%">
+          <el-select v-model="form.courseId" placeholder="请选择课程" style="width: 100%" :disabled="!form.studentId">
             <el-option
               v-for="course in courseOptions"
               :key="course.id"
@@ -70,7 +74,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="成绩" prop="score">
-          <el-input-number v-model="form.score" :min="0" :max="100" />
+          <el-input-number v-model="form.score" :min="0" :max="100" :disabled="!form.studentId" />
         </el-form-item>
       </el-form>
       <template #footer>
@@ -85,6 +89,7 @@
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { getScoreList, createScore, updateScore, deleteScore } from '../api/score'
+import { getStudentByStudentNo } from '../api/student'
 import request from '../api/request'
 import Pagination from '../components/Pagination.vue'
 
@@ -94,11 +99,11 @@ const currentPage = ref(1)
 const pageSize = ref(10)
 const total = ref(0)
 
-const studentOptions = ref([])
 const courseOptions = ref([])
+const currentStudent = ref(null)
 
 const queryForm = reactive({
-  studentName: '',
+  studentNo: '',
   courseName: ''
 })
 
@@ -108,24 +113,47 @@ const formRef = ref(null)
 
 const form = reactive({
   id: null,
+  studentNo: '',
   studentId: null,
   courseId: null,
   score: 0
 })
 
 const rules = {
-  studentId: [{ required: true, message: '请选择学生', trigger: 'change' }],
+  studentNo: [{ required: true, message: '请输入学生学号', trigger: 'blur' }],
   courseId: [{ required: true, message: '请选择课程', trigger: 'change' }],
   score: [{ required: true, message: '请输入成绩', trigger: 'blur' }]
 }
 
+const validateStudentNo = async () => {
+  if (!form.studentNo || form.studentNo.trim() === '') {
+    currentStudent.value = null
+    form.studentId = null
+    return
+  }
+
+  try {
+    const res = await getStudentByStudentNo(form.studentNo.trim())
+    if (res.data) {
+      currentStudent.value = res.data
+      form.studentId = res.data.id
+      ElMessage.success(`找到学生：${res.data.name}(${res.data.studentNo})`)
+    } else {
+      currentStudent.value = null
+      form.studentId = null
+      ElMessage.warning('未找到该学号对应的学生')
+    }
+  } catch (error) {
+    console.error(error)
+    currentStudent.value = null
+    form.studentId = null
+    ElMessage.error('查询学生失败')
+  }
+}
+
 const fetchOptions = async () => {
   try {
-    const [studentRes, courseRes] = await Promise.all([
-      request({ url: '/students/all', method: 'get' }),
-      request({ url: '/courses/all', method: 'get' })
-    ])
-    studentOptions.value = studentRes.data || []
+    const courseRes = await request({ url: '/courses/all', method: 'get' })
     courseOptions.value = courseRes.data || []
   } catch (error) {
     console.error(error)
@@ -173,7 +201,7 @@ const handleSearch = () => {
 }
 
 const handleReset = () => {
-  queryForm.studentName = ''
+  queryForm.studentNo = ''
   queryForm.courseName = ''
   currentPage.value = 1
   fetchData()
@@ -181,13 +209,15 @@ const handleReset = () => {
 
 const handleAdd = () => {
   dialogTitle.value = '新增成绩'
-  Object.assign(form, { id: null, studentId: null, courseId: null, score: 0 })
+  Object.assign(form, { id: null, studentNo: '', studentId: null, courseId: null, score: 0 })
+  currentStudent.value = null
   dialogVisible.value = true
 }
 
 const handleEdit = (row) => {
   dialogTitle.value = '编辑成绩'
-  Object.assign(form, row)
+  Object.assign(form, { ...row, studentNo: row.studentNo || '' })
+  currentStudent.value = row.studentNo ? { name: row.studentName, studentNo: row.studentNo } : null
   dialogVisible.value = true
 }
 
@@ -243,5 +273,20 @@ onMounted(() => {
 
 .search-form {
   margin-bottom: 20px;
+}
+
+.student-info {
+  margin-top: 8px;
+  display: flex;
+  gap: 8px;
+}
+
+.info-tag {
+  padding: 2px 8px;
+  background-color: #e6f7ff;
+  border: 1px solid #91d5ff;
+  border-radius: 4px;
+  font-size: 12px;
+  color: #1890ff;
 }
 </style>

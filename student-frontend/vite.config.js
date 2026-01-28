@@ -12,10 +12,19 @@ export default defineConfig({
    * plugins: 插件配置，让 Element Plus 组件可以自动导入
    */
   plugins: [
+    /**
+     * @vitejs/plugin-vue: Vue 插件
+     */
     vue(),
+    /**
+     * unplugin-auto-import: 自动导入插件
+     */
     AutoImport({
       resolvers: [ElementPlusResolver()],
     }),
+    /**
+     * unplugin-vue-components: Vue 组件插件
+     */
     Components({
       resolvers: [ElementPlusResolver()],
     }),

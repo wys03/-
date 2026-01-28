@@ -44,5 +44,5 @@ public interface ScoreService {
     /**
      * 分页查询成绩详情（带条件）
      */
-    IPage<StudentScoreVO> getScorePage(int current, int size, String studentName, String courseName);
+    IPage<StudentScoreVO> getScorePage(int current, int size, String studentNo, String courseName);
 }

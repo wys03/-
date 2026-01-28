@@ -1,3 +1,6 @@
+/**
+ * API请求封装
+ */
 import axios from 'axios'
 import { ElMessage } from 'element-plus'
 

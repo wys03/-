@@ -79,11 +79,11 @@ public class ScoreServiceImpl implements ScoreService {
     }
 
     @Override
-    public IPage<StudentScoreVO> getScorePage(int current, int size, String studentName, String courseName) {
-        log.info("分页查询成绩，当前页：{}，每页条数：{}，学生姓名：{}，课程名称：{}",
-                current, size, studentName, courseName);
+    public IPage<StudentScoreVO> getScorePage(int current, int size, String studentNo, String courseName) {
+        log.info("分页查询成绩，当前页：{}，每页条数：{}，学生学号：{}，课程名称：{}",
+                current, size, studentNo, courseName);
 
         Page<StudentScoreVO> page = new Page<>(current, size);
-        return scoreMapper.selectScorePage(page, studentName, courseName);
+        return scoreMapper.selectScorePage(page, studentNo, courseName);
     }
 }
